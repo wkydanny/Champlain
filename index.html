@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Champlain College RAC in Computer Science</title>
+	<link rel="icon" type="image/jpeg" href="logo-blue.jpg">
+<style>
+        :root {
+            --primary-blue: #0056b3;
+            --dark-blue: #003d80;
+            --light-grey: #f4f7f6;
+            --text-color: #333;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-grey);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header & Navigation */
+        header {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .hamburger {
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--primary-blue);
+        }
+
+        .logo-main {
+            height: 50px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background-color: var(--dark-blue);
+            color: white;
+            transition: 0.3s;
+            z-index: 1001;
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar h2 {
+            padding: 1rem 1.5rem;
+            font-size: 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar a {
+            padding: 12px 24px;
+            text-decoration: none;
+            font-size: 14px;
+            color: #d1d1d1;
+            display: block;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .sidebar .official-link {
+            margin-top: 20px;
+            background-color: rgba(255,255,255,0.1);
+            font-weight: bold;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Main Content */
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .welcome-section img {
+            max-width: 300px;
+            margin-bottom: 1rem;
+        }
+
+        /* Folder Grid */
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .folder-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-bottom: 4px solid var(--primary-blue);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .folder-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .folder-icon {
+            font-size: 3rem;
+            color: #ffc107;
+            margin-bottom: 1rem;
+        }
+
+        /* Folder Content Page */
+        #folder-view {
+            display: none;
+        }
+
+        .folder-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .note-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffeeba;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 4px;
+            line-height: 1.6;
+        }
+
+        .file-list {
+            background: white;
+            border-radius: 8px;
+            list-style: none;
+            overflow: hidden;
+        }
+
+        .file-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item:last-child { border-bottom: none; }
+
+        .back-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 2rem;
+            text-align: center;
+            background: white;
+        }
+
+        .round-logo {
+            height: 80px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+<nav class="sidebar" id="sidebar">
+    <div style="padding: 1rem; text-align: center;">
+        <img src="logo-transparent.jpg" alt="RAC Logo" style="width: 80%;">
+    </div>
+    <h2>Quick Access</h2>
+    <a href="#" onclick="showHome()">🏠 Main Page</a>
+    <div id="sidebar-links"></div>
+    
+    <a href="https://champlainrac.com/programs/aec/information-technology-client-support/" target="_blank" class="official-link">🌐 Official Champlain RAC</a>
+</nav>
+
+<header>
+    <div class="header-left">
+        <button class="hamburger" onclick="toggleMenu()">☰</button>
+        <img src="logo-transparent.jpg" alt="Champlain RAC" class="logo-main">
+    </div>
+</header>
+
+<main>
+    <section id="home-view">
+        <div class="welcome-section">
+            <img src="logo-blue.jpg" alt="Champlain RAC Header" style="width: 150px;">
+            <h1>RAC in Computer Science</h1>
+            <p>Select a competency folder to view specific materials and notes.</p>
+        </div>
+        <div class="folder-grid" id="folder-grid"></div>
+    </section>
+
+    <section id="folder-view">
+        <button class="back-btn" onclick="showHome()">← Back to Overview</button>
+        <div class="folder-header">
+            <span style="font-size: 2rem;">📂</span>
+            <h1 id="current-folder-name">Folder Name</h1>
+        </div>
+        
+        <div id="folder-note" class="note-box">
+            <strong>📝 Competency Description:</strong><br>
+            <span id="note-content">Loading...</span>
+        </div>
+
+        <h3>Artifacts & Resources</h3>
+        <div class="file-list" id="file-list"></div>
+    </section>
+</main>
+
+<footer>
+    <img src="logo-RAC-round.png" alt="Success Through Certification" class="round-logo">
+    <p>&copy; 2026 Champlain College Saint-Lambert - RAC Services</p>
+</footer>
+
+<script>
+    /**
+     * HOW TO EDIT: 
+     * To change a folder's content, update the 'note' or the 'files' array below.
+     * To add a real download link, replace the '#' in the 'url' property.
+     */
+    const folders = [
+        { 
+            id: 1, 
+            name: "0000 - Analyze Information About Working In The Field Of Computer Science", 
+            note: "This competency will need you to answer the booklet in French. The English booklet is for reference ONLY.", 
+            files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1dumyHW-e72P-ninRS8n3Ky2NrRAHh5ti/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1Y2p0aT_IS85ZVcUhLMrBpx8eSYph9tCW/view?usp=drive_link" }, 
+                { name: "Livret d'évaluation", url: "https://drive.google.com/file/d/1USqZ3YAY6NSE8qfNfznjOHzdHYLGWmpd/view?usp=drive_link" }
+            ] 
+        },
+        { 
+            id: 2, 
+            name: "00Q1 - Install And Manage Computer", 
+            note: "The competency will test on Powershell and combined with 00SJ. Do the labs to get use to Powershell scripting.", 
+            files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1u4xgT97PpwR8YSik-cOVXehQrPapqNAP/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Powershell Lab-1", url: "https://drive.google.com/file/d/1hEa7LphHaG0lrgG2Xme255Olnc5Egr67/view?usp=drive_link" }, 
+                { name: "Powershell Lab-2", url: "https://drive.google.com/file/d/1JOddLOI9nUz6Lnzk6fKiGadnP1yMiK_c/view?usp=drive_link" }, 
+                { name: "Powershell Lab-3", url: "https://drive.google.com/file/d/11bBh4p0irWOhOOL0GVUeFHRigoGNqYaz/view?usp=drive_link" }
+            ] 
+        },
+        { 
+            id: 3, 
+            name: "00Q2 - Use Programming Languages", 
+            note: "This competency requires you to write a python script to distinguish the class of IP by both user input and reading a text file. So, you need to know programming in python.", 
+            files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1o2YKhfod1jnmeVlsUdDMe4dYI6RJv-v4/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1hFtXoj-U_YLm2Tu4nDNdytEAEIk7Yzwk/view?usp=drive_link" }, 
+			    { name: "IP-List.txt", url: "https://drive.google.com/file/d/1LmxTUcA-7zKv1gnGxf9DQzSQYQs_e_-5/view?usp=drive_link" }
+		    ] 
+        },
+        { 
+            id: 4, 
+            name: "00Q3 - Solve Computer Related Problems Using Math", 
+            note: "This competency will required the instructor to grant you the access to do the Math Test. So you won't be able to do it ahead.", 
+            files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1eqmIv5ObfPXYeJernL3uNXBTU8sDAd_M/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }
+			] 
+        },
+        { 
+		    id: 5, 
+			name: "00Q4 - Use Office Productive Software", 
+			note: "This competency is to do a group project and it combined with 00SF & 00SQ. So you can't do it ahead.", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/168bZ7niC4CALFVyd8_s7sYhlM6wMTg1_/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }
+			] 
+		},
+        { 
+			id: 6, 
+			name: "00Q5 - Deploy A Local Computer Network", 
+			note: "This competency will need you to configure VTP, VLAN, Wireless Networks, and port security. You needs to understand how to do subnetting. So, do the tons of labs that you need to practice! And I mean it!!", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1STTMMv6RcXmQkrnFGFBL91Nth7NewiUO/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1Ov6cBAEVHPGQWZ-vL-9NPWimQxYf77Wm/view?usp=drive_link" }, 
+                { name: "Labs.zip", url: "https://drive.google.com/file/d/1CIVMr-YuN8yc3s179_MZFXlel6BlmTu3/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 7, 
+			name: "00Q6 - Use An Objection Oriented Development Approach", 
+			note: "This competency requires you to write an object-oriented python class to check: 1) the validity of IP; 2) IP class; 3) Public or Private IP; 4) the strength of password. So, you need to know object-oriented programming in python", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1qN3mXrfsBwH6z4trk2cPtxNEQF4E4kN-/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1lfzL7j5PFfehTMKIDC_C3pTay818FHbK/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 8, 
+			name: "00Q7 - Use A Database Management System", 
+			note: "This competency requires you to write 3 python scripts to manipulate the database (network_inventory.db) by inputting, checking, and modifying the data from reading the text files. So, you need to know Python and SQL.", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1gXwn41Rbt0XAtHPpy6y69zw2eUf5CEmp/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1E1fLkkK_z3gi4aLhwFgqqP7hvQtuGnVl/view?usp=drive_link" }, 
+                { name: "Labs.zip", url: "https://drive.google.com/file/d/1m7o7_2IytCokzylhSSaAOcudFE7kL7DY/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 9, 
+			name: "00Q8 - Carry Out Prevention Operations With Regards To Information Security", 
+			note: "This competency requires you to setup two network topologies: 1) you will need to setup a wired network with DMZ for internal and external networks with ALC security; b) you will need to setup a wireless network with WPA encrypted security. So, do the labs.", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/11o1meYNCyDKZ-TbSWmuFOUH71k6OtYuC/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet, part 1", url: "#https://drive.google.com/file/d/18FnJ8fGlNeAvBD5v7pRI-amLSvG-peVo/view?usp=drive_link" }, 
+                { name: "Evaluation Booklet, part 2", url: "https://drive.google.com/file/d/1-24kqLIrq4-2IgmxCdp0c8YrV_4baHAE/view?usp=drive_link" }, 
+                { name: "Labs.zip", url: "https://drive.google.com/file/d/1leFf6ux5mf1XRP-EJk4aXpK-dhK26qYA/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 10, 
+			name: "00SE - Interact In A Professionl Setting", 
+			note: "This competency combines with 00SG. You needs you to complete it in French. You will need to setup a Service contract (see the template as reference) and answer the questions in a sense of profession as a sale of IT admin.", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1LkZGactoIkDaVwZhqDQkt8KOOHuQzw2m/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1te1epzNdlyfNsrhjVhfmH4NqXmPvfk_t/view?usp=drive_link" }, 
+                { name: "Livret d'évaluation", url: "https://drive.google.com/file/d/1bjZqvn5FwmUcNaTmOH4hk4H8KHnRnvtP/view?usp=drive_link" },
+				{ name: "Service Level Agreement-Template", url: "https://drive.google.com/file/d/15ZksHpeoS6G0IKeY0_YQfBxfzfc6x3FP/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 11, 
+			name: "00SF - Evaluate Software And Hardware Components", 
+			note: "This competency is to do a group project and it combined with 00Q4 & 00SQ. So you can't do it ahead.", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/12AbINzuyi7x6bKic2nbWY1F2IwHuXfpn/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }
+			] 
+		},
+        { 
+			id: 12, 
+			name: "00SG - Provide Users With Technical Support", 
+			note: "This competency combines with 00SE. You needs you to complete it in French. You will need to setup a Service contract (see the template as reference) and answer the questions in a sense of profession as a sale of IT admin.", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1zYnVHNTZ-McNKqcPWtQTf7UGIqYe4IQt/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1r5a433I8cKQFUDBubi-vwrEHHgAX-37p/view?usp=drive_link" }, 
+                { name: "Livret d'évaluation", url: "https://drive.google.com/file/d/1UVSwKTOT7HMXcFtyRMI3QziLEed9v_6C/view?usp=drive_link" }, 
+				{ name: "Service Level Agreement-Template", url: "https://drive.google.com/file/d/1DpDaBfR_Z6hsOl_I9Fk9MNxycd0uS44j/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 13, 
+			name: "00SH - Adapt To Information Technology", 
+			note: "This competency will need AWS access given by the instructor. You can't do it ahead.", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1NPNHijRx0qLvITHr0nJiM8ya8Yd5Yrje/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1MAAbFV-aTlg3f9fkDwtnVfywbTkTBeSa/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 14, 
+			name: "00SJ - Deploy Intranet Server", 
+			note: "This competency is to work on Windows Server 2019 and Windows 10, where both OS installed under Hyper-V. It combined with 00Q1. You will need to setup the Server and test on the client side (Windows 10). So, do the labs.", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1zYnVHNTZ-McNKqcPWtQTf7UGIqYe4IQt/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1r5a433I8cKQFUDBubi-vwrEHHgAX-37p/view?usp=drive_link" }, 
+                { name: "Livret d'évaluation", url: "https://drive.google.com/file/d/1UVSwKTOT7HMXcFtyRMI3QziLEed9v_6C/view?usp=drive_link" }, 
+				{ name: "Service Level Agreement-Template", url: "https://drive.google.com/file/d/1DpDaBfR_Z6hsOl_I9Fk9MNxycd0uS44j/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 15, 
+			name: "00SK - Deploy Internet Server", 
+			note: "This competency requires you to establish a BIND DNS domain server in Linux.", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1T3Kq1sOnXHSt3NcMApr39SDgxZEzRDtr/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1q5xPCQTluLqbpIr_voxLwCfXjtJZvg3r/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 16, 
+			name: "00SM - Deploy Computer Internetworking Working Devices", 
+			note: "This competency needs you to know static routing, OSPF, RIPv2, EIGRP, and distribution. So, do the labs and I mean it!", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1H0RQjzjM3eS1nyLo5cFBmbIOjJS1tVJS/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1KCRqhNZjcZ-_1-KYI5KCg_0RHZA-8fCG/view?usp=drive_link" }, 
+                { name: "Evaluation Topology.png", url: "https://drive.google.com/file/d/1RMYUI6UwfFAP027zeijS1H5CxesFLzmx/view?usp=drive_link" }, 
+                { name: "EvaluationTopology.pkt", url: "https://drive.google.com/file/d/1xUcFe1j7s7-vwbweZ_7hZ49JwbE8vXzM/view?usp=drive_link" }, 
+				{ name: "Labs.zip", url: "https://drive.google.com/file/d/1wvlpYVMeqemMQjNqBRNWPLBFB9U4hXlc/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 17, 
+			name: "00SN - Automate Computer Network Management Tasks", 
+			note: "This competency requires you to work with GNS3, which required to accompany a VM Ubuntu to work with. You will need to write a python script to configure the network and then to output the result. It took us a lot of time to setup the GNS3. Once it is setup, the rest is not that hard. So, You need to know programming in python.  ", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/10BDwbpyFQ4-U2JloxsvUAlisruuXDcuL/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/1HDfNht5gDUyZ3Onh1aAlcv8OrTAKgaLJ/view?usp=drive_link" }, 
+                { name: "EvaluationTopology.png", url: "https://drive.google.com/file/d/1JFOafWf6qoiXsvwi94bJlWmgL-3d7zoq/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 18, 
+			name: "00SP - Monitor Computer Networks", 
+			note: "This competency requires you to: 1) setup static routing, VLANs, OSPF, and enable DHCP server; 2) setup the monitoring tools such as SNMP, Syslog, NTP, NetFlow, CDP, LLDP, and SPAN ports; 3) generate traffic thus ICMP, TCP, UDP; 3) answer the questions. So, do the labs.", 
+			files: [
+                { name: "Outline", url: "#" }, 
+                { name: "Evaluation Booklet", url: "https://drive.google.com/file/d/15UuzjC3SFCkGmj1G5DWfdkoUyyKnQMDN/view?usp=drive_link" }, 
+                { name: "Evaluation Worksheet", url: "https://drive.google.com/file/d/1jMaTsd58hsgCTxdz2YCKKiDQ8wyNBIFV/view?usp=drive_link" }, 
+                { name: "EvaluationNetwork.pkt", url: "https://drive.google.com/file/d/1sf95nT4SPGTj2d_Z4f-zSBRHPjNhd_Ds/view?usp=drive_link" }
+			] 
+		},
+        { 
+			id: 19, 
+			name: "00SQ - Collaborate On The Design Of A Computer Network", 
+			note: "This competency is to do a group project and it combined with 00Q4 & 00SF. So you can't do it ahead.", 
+			files: [
+                { name: "Outline", url: "https://docs.google.com/document/d/1ZPF-i31o-iaEuapNNUwZ0zHVfuk7PiYN/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }
+			] 
+		},
+        { 
+			id: 20, 
+			name: "General Information", 
+			note: "General program description and contacts", 
+			files: [
+                { name: "Cluster 1 - Introduction", url: "https://docs.google.com/document/d/15FK4vHI4guhKMTMdwN1qnBCeFnhpw4v_/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Cluster 2 - Networking", url: "https://docs.google.com/document/d/1wJIxfDlPm2ksVeQtfETas0j2ZX0mlEOO/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Cluster 3 - Servers", url: "https://docs.google.com/document/d/1zcXn3qciGkEORQFTfbpyucTyQhTxaV-b/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Cluster 4 - Security & Monitoring", url: "https://docs.google.com/document/d/1yqnrg463voN3ePlcwPVGX9VX992sd5U2/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Cluster 5 - Automation", url: "https://docs.google.com/document/d/1MR6Ths94NOD6u3qrWJJljFtiO2u4d7n3/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }, 
+                { name: "Cluster 6 - Project", url: "https://docs.google.com/document/d/1jQzXOXh0mjPvUuqdsFsneW1fZMDS8AcU/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" },
+ 				{ name: "Specialists Contacts", url: "https://docs.google.com/document/d/1OCGPeHf1kMRAFQ8VMJToa-yMM5vVaI3g/edit?usp=drive_link&ouid=110207647346157258094&rtpof=true&sd=true" }
+			] 
+		}
+    ];
+
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function showHome() {
+        document.getElementById('home-view').style.display = 'block';
+        document.getElementById('folder-view').style.display = 'none';
+        if(document.getElementById('sidebar').classList.contains('active')) toggleMenu();
+        window.scrollTo(0,0);
+    }
+
+	function openFolder(folderId) {
+        const folder = folders.find(f => f.id === folderId);
+        document.getElementById('home-view').style.display = 'none';
+        document.getElementById('folder-view').style.display = 'block';
+        
+        document.getElementById('current-folder-name').innerText = folder.name;
+        document.getElementById('note-content').innerText = folder.note;
+        
+        const listContainer = document.getElementById('file-list');
+        listContainer.innerHTML = '';
+		
+		const timestamp = new Date().getTime();
+        
+        folder.files.forEach(file => {
+            // Check file.name since your data uses objects
+            if(file.name.toLowerCase() !== 'readme.txt') {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                
+                // Use file.url from your data to create the fresh link
+                const freshUrl = file.url.includes('?') ? `${file.url}&v=${timestamp}` : `${file.url}?v=${timestamp}`;
+
+                item.innerHTML = `
+                    <span>📄 ${file.name}</span> 
+                    <a href="${freshUrl}" 
+                       target="_blank" 
+                       style="color: var(--primary-blue); font-weight: bold; text-decoration: none;"
+                    >download</a>`;
+                    
+                listContainer.appendChild(item);
+            }
+        });
+
+        if(document.getElementById('sidebar').classList.contains('active')) toggleMenu();
+        window.scrollTo(0,0);
+    }
+
+    function init() {
+        const grid = document.getElementById('folder-grid');
+        const sidebarLinks = document.getElementById('sidebar-links');
+
+        folders.forEach(folder => {
+            const card = document.createElement('div');
+            card.className = 'folder-card';
+            card.onclick = () => openFolder(folder.id);
+            card.innerHTML = `
+                <div class="folder-icon">📁</div>
+                <div class="folder-name" style="font-weight: bold; font-size: 0.85rem;">${folder.name}</div>
+            `;
+            grid.appendChild(card);
+
+            const link = document.createElement('a');
+            link.href = "#";
+            link.innerText = folder.name;
+            link.onclick = (e) => { e.preventDefault(); openFolder(folder.id); };
+            sidebarLinks.appendChild(link);
+        });
+    }
+
+    init();
+</script>
+
+</body>
+</html>
